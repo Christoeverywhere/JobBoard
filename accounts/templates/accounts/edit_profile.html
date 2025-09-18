@@ -1,0 +1,175 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Edit Profile - Job Board{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-user-edit fa-3x text-primary mb-3"></i>
+                        <h2 class="fw-bold text-primary">Edit Profile</h2>
+                        <p class="text-muted">Update your personal information</p>
+                    </div>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ user_form.first_name.id_for_label }}" class="form-label">First Name</label>
+                                {{ user_form.first_name }}
+                                {% if user_form.first_name.errors %}
+                                    <div class="text-danger small">{{ user_form.first_name.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ user_form.last_name.id_for_label }}" class="form-label">Last Name</label>
+                                {{ user_form.last_name }}
+                                {% if user_form.last_name.errors %}
+                                    <div class="text-danger small">{{ user_form.last_name.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ user_form.email.id_for_label }}" class="form-label">Email Address</label>
+                            {{ user_form.email }}
+                            {% if user_form.email.errors %}
+                                <div class="text-danger small">{{ user_form.email.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ profile_form.phone.id_for_label }}" class="form-label">Phone Number</label>
+                                {{ profile_form.phone }}
+                                {% if profile_form.phone.errors %}
+                                    <div class="text-danger small">{{ profile_form.phone.errors }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ profile_form.location.id_for_label }}" class="form-label">Location</label>
+                                {{ profile_form.location }}
+                                {% if profile_form.location.errors %}
+                                    <div class="text-danger small">{{ profile_form.location.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        {% if user.userprofile.user_type == 'employer' and employer_form %}
+                            <hr class="my-4">
+                            <h5 class="fw-bold mb-3">Company Information</h5>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ employer_form.company_name.id_for_label }}" class="form-label">Company Name</label>
+                                    {{ employer_form.company_name }}
+                                    {% if employer_form.company_name.errors %}
+                                        <div class="text-danger small">{{ employer_form.company_name.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ employer_form.industry.id_for_label }}" class="form-label">Industry</label>
+                                    {{ employer_form.industry }}
+                                    {% if employer_form.industry.errors %}
+                                        <div class="text-danger small">{{ employer_form.industry.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ employer_form.company_size.id_for_label }}" class="form-label">Company Size</label>
+                                    {{ employer_form.company_size }}
+                                    {% if employer_form.company_size.errors %}
+                                        <div class="text-danger small">{{ employer_form.company_size.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ employer_form.website.id_for_label }}" class="form-label">Website</label>
+                                    {{ employer_form.website }}
+                                    {% if employer_form.website.errors %}
+                                        <div class="text-danger small">{{ employer_form.website.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="{{ employer_form.description.id_for_label }}" class="form-label">Company Description</label>
+                                {{ employer_form.description }}
+                                {% if employer_form.description.errors %}
+                                    <div class="text-danger small">{{ employer_form.description.errors }}</div>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                        
+                        {% if user.userprofile.user_type == 'job_seeker' and jobseeker_form %}
+                            <hr class="my-4">
+                            <h5 class="fw-bold mb-3">Professional Information</h5>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ jobseeker_form.skills.id_for_label }}" class="form-label">Skills</label>
+                                    {{ jobseeker_form.skills }}
+                                    {% if jobseeker_form.skills.errors %}
+                                        <div class="text-danger small">{{ jobseeker_form.skills.errors }}</div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="{{ jobseeker_form.experience_years.id_for_label }}" class="form-label">Years of Experience</label>
+                                    {{ jobseeker_form.experience_years }}
+                                    {% if jobseeker_form.experience_years.errors %}
+                                        <div class="text-danger small">{{ jobseeker_form.experience_years.errors }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="{{ jobseeker_form.education.id_for_label }}" class="form-label">Education</label>
+                                {{ jobseeker_form.education }}
+                                {% if jobseeker_form.education.errors %}
+                                    <div class="text-danger small">{{ jobseeker_form.education.errors }}</div>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'accounts:profile' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Profile
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.form-control, .form-select {
+    border-radius: 0.5rem;
+    border: 1px solid #d1d5db;
+    padding: 0.75rem;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.25);
+}
+
+textarea.form-control {
+    min-height: 120px;
+}
+</style>
+{% endblock %}

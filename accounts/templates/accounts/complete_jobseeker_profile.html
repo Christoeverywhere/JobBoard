@@ -1,0 +1,88 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Complete Job Seeker Profile - Job Board{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-user-tie fa-3x text-primary mb-3"></i>
+                        <h2 class="fw-bold text-primary">Complete Your Job Seeker Profile</h2>
+                        <p class="text-muted">Showcase your skills and experience to potential employers</p>
+                    </div>
+                    
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.skills.id_for_label }}" class="form-label">Skills</label>
+                                {{ form.skills }}
+                                {% if form.skills.errors %}
+                                    <div class="text-danger small">{{ form.skills.errors }}</div>
+                                {% endif %}
+                                <div class="form-text">List your key skills separated by commas</div>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.experience_years.id_for_label }}" class="form-label">Years of Experience</label>
+                                {{ form.experience_years }}
+                                {% if form.experience_years.errors %}
+                                    <div class="text-danger small">{{ form.experience_years.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.education.id_for_label }}" class="form-label">Education</label>
+                            {{ form.education }}
+                            {% if form.education.errors %}
+                                <div class="text-danger small">{{ form.education.errors }}</div>
+                            {% endif %}
+                            <div class="form-text">Your highest level of education and relevant qualifications</div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="{{ form.resume.id_for_label }}" class="form-label">Resume/CV</label>
+                            {{ form.resume }}
+                            {% if form.resume.errors %}
+                                <div class="text-danger small">{{ form.resume.errors }}</div>
+                            {% endif %}
+                            <div class="form-text">Upload your resume in PDF format (max 5MB)</div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'accounts:profile' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Profile
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Save Profile
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.form-control, .form-select {
+    border-radius: 0.5rem;
+    border: 1px solid #d1d5db;
+    padding: 0.75rem;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.25);
+}
+
+textarea.form-control {
+    min-height: 120px;
+}
+</style>
+{% endblock %}

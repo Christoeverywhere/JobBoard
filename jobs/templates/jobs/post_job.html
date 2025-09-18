@@ -1,0 +1,306 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Post a Job - Job Board{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <h1 class="h2 fw-bold text-primary">Post a New Job</h1>
+                        <p class="text-muted">Find the perfect candidate for your position</p>
+                    </div>
+                    
+                    <form method="post" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        <!-- Job Title -->
+                        <div class="mb-4">
+                            <label for="{{ form.title.id_for_label }}" class="form-label fw-bold">
+                                Job Title <span class="text-danger">*</span>
+                            </label>
+                            {{ form.title }}
+                            {% if form.title.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.title.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">Enter a clear, descriptive job title</div>
+                        </div>
+                        
+                        <!-- Company Name -->
+                        <div class="mb-4">
+                            <label for="{{ form.company_name.id_for_label }}" class="form-label fw-bold">
+                                Company Name <span class="text-danger">*</span>
+                            </label>
+                            {{ form.company_name }}
+                            {% if form.company_name.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.company_name.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <!-- Location -->
+                                <div class="mb-4">
+                                    <label for="{{ form.location.id_for_label }}" class="form-label fw-bold">
+                                        Location <span class="text-danger">*</span>
+                                    </label>
+                                    {{ form.location }}
+                                    {% if form.location.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {% for error in form.location.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                    <div class="form-text">City, State or "Remote"</div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <!-- Job Type -->
+                                <div class="mb-4">
+                                    <label for="{{ form.job_type.id_for_label }}" class="form-label fw-bold">
+                                        Job Type <span class="text-danger">*</span>
+                                    </label>
+                                    {{ form.job_type }}
+                                    {% if form.job_type.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {% for error in form.job_type.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <!-- Category -->
+                                <div class="mb-4">
+                                    <label for="{{ form.category.id_for_label }}" class="form-label fw-bold">
+                                        Category
+                                    </label>
+                                    {{ form.category }}
+                                    {% if form.category.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {% for error in form.category.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <!-- Application Deadline -->
+                                <div class="mb-4">
+                                    <label for="{{ form.application_deadline.id_for_label }}" class="form-label fw-bold">
+                                        Application Deadline
+                                    </label>
+                                    {{ form.application_deadline }}
+                                    {% if form.application_deadline.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {% for error in form.application_deadline.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                    <div class="form-text">Optional - Leave blank for no deadline</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Salary Range -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Salary Range (Optional)</label>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="input-group">
+                                        <span class="input-group-text">$</span>
+                                        {{ form.salary_min }}
+                                    </div>
+                                    {% if form.salary_min.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {% for error in form.salary_min.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                    <div class="form-text">Minimum salary</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="input-group">
+                                        <span class="input-group-text">$</span>
+                                        {{ form.salary_max }}
+                                    </div>
+                                    {% if form.salary_max.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {% for error in form.salary_max.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                    <div class="form-text">Maximum salary</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Job Description -->
+                        <div class="mb-4">
+                            <label for="{{ form.description.id_for_label }}" class="form-label fw-bold">
+                                Job Description <span class="text-danger">*</span>
+                            </label>
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.description.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">
+                                Describe the role, responsibilities, and what makes this position exciting
+                            </div>
+                        </div>
+                        
+                        <!-- Requirements -->
+                        <div class="mb-4">
+                            <label for="{{ form.requirements.id_for_label }}" class="form-label fw-bold">
+                                Requirements
+                            </label>
+                            {{ form.requirements }}
+                            {% if form.requirements.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.requirements.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">
+                                List required skills, experience, education, and qualifications
+                            </div>
+                        </div>
+                        
+                        <!-- Is Active -->
+                        <div class="mb-4">
+                            <div class="form-check">
+                                {{ form.is_active }}
+                                <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
+                                    Publish this job immediately
+                                </label>
+                            </div>
+                            <div class="form-text">
+                                Uncheck to save as draft (you can publish later)
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'jobs:my_jobs' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-plus me-2"></i>Post Job
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Tips Card -->
+            <div class="card mt-4">
+                <div class="card-body">
+                    <h5 class="fw-bold text-primary mb-3">
+                        <i class="fas fa-lightbulb me-2"></i>Tips for a Great Job Posting
+                    </h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Use a clear, specific job title that candidates will search for
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Include key responsibilities and day-to-day tasks
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            List must-have vs. nice-to-have requirements
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Mention company culture and benefits
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Be transparent about salary range when possible
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.form-control, .form-select {
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+.form-label {
+    color: #495057;
+    margin-bottom: 8px;
+}
+
+.form-text {
+    color: #6c757d;
+    font-size: 14px;
+}
+
+.invalid-feedback {
+    color: #dc3545;
+    font-size: 14px;
+}
+
+textarea.form-control {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.input-group-text {
+    background-color: #f8f9fa;
+    border: 2px solid #e9ecef;
+    border-right: none;
+}
+
+.input-group .form-control {
+    border-left: none;
+}
+
+.input-group .form-control:focus {
+    border-left: none;
+}
+
+.input-group:focus-within .input-group-text {
+    border-color: #0d6efd;
+}
+</style>
+{% endblock %}

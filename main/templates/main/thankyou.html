@@ -1,0 +1,32 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Thank You - Job Board{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 text-center">
+            <div class="card">
+                <div class="card-body p-5">
+                    <i class="fas fa-check-circle fa-5x text-success mb-4"></i>
+                    <h1 class="h2 mb-4">Thank You{{ name|default:"" }}!</h1>
+                    <p class="lead mb-4">
+                        Your message has been received successfully. We appreciate you taking the time to contact us.
+                    </p>
+                    <p class="text-muted mb-4">
+                        Our team will review your message and get back to you within 24-48 hours.
+                    </p>
+                    <div class="d-flex justify-content-center gap-3">
+                        <a href="{% url 'main:home' %}" class="btn btn-primary">
+                            <i class="fas fa-home me-2"></i>Back to Home
+                        </a>
+                        <a href="{% url 'jobs:job_list' %}" class="btn btn-outline-primary">
+                            <i class="fas fa-search me-2"></i>Browse Jobs
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

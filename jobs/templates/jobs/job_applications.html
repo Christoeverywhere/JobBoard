@@ -1,0 +1,623 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Applications - {{ job.title }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Header -->
+    <div class="d-flex align-items-center mb-4">
+        <a href="{% url 'jobs:my_jobs' %}" class="btn btn-outline-secondary me-3">
+            <i class="fas fa-arrow-left me-2"></i>Back to My Jobs
+        </a>
+        <div class="flex-grow-1">
+            <h1 class="h2 fw-bold text-primary mb-1">Job Applications</h1>
+            <p class="text-muted mb-0">{{ job.title }} at {{ job.company_name }}</p>
+        </div>
+        <div class="text-end">
+            <a href="{% url 'jobs:job_detail' job.id %}" class="btn btn-outline-info me-2">
+                <i class="fas fa-eye me-2"></i>View Job
+            </a>
+            <a href="{% url 'jobs:edit_job' job.id %}" class="btn btn-outline-primary">
+                <i class="fas fa-edit me-2"></i>Edit Job
+            </a>
+        </div>
+    </div>
+    
+    <!-- Job Summary Card -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h5 class="fw-bold mb-2">{{ job.title }}</h5>
+                    <div class="d-flex flex-wrap gap-3 text-muted">
+                        <span><i class="fas fa-building me-1"></i>{{ job.company_name }}</span>
+                        <span><i class="fas fa-map-marker-alt me-1"></i>{{ job.location }}</span>
+                        <span><i class="fas fa-briefcase me-1"></i>{{ job.job_type }}</span>
+                        <span><i class="fas fa-calendar me-1"></i>Posted {{ job.created_at|timesince }} ago</span>
+                        {% if job.application_deadline %}
+                            <span><i class="fas fa-clock me-1"></i>Deadline: {{ job.application_deadline|date:"M d, Y" }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <div class="d-flex justify-content-md-end gap-2 mt-3 mt-md-0">
+                        {% if job.is_active %}
+                            <span class="badge bg-success fs-6">Active</span>
+                        {% else %}
+                            <span class="badge bg-secondary fs-6">Inactive</span>
+                        {% endif %}
+                        <span class="badge bg-primary fs-6">{{ applications.count }} Applications</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Statistics -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="fw-bold">{{ applications.count }}</h4>
+                            <p class="mb-0">Total Applications</p>
+                        </div>
+                        <i class="fas fa-users fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="fw-bold">{{ new_applications }}</h4>
+                            <p class="mb-0">New (Unreviewed)</p>
+                        </div>
+                        <i class="fas fa-envelope fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="fw-bold">{{ shortlisted_applications }}</h4>
+                            <p class="mb-0">Shortlisted</p>
+                        </div>
+                        <i class="fas fa-star fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="fw-bold">{{ interviewed_applications }}</h4>
+                            <p class="mb-0">Interviewed</p>
+                        </div>
+                        <i class="fas fa-handshake fa-2x opacity-75"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Filters and Search -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <input type="text" name="search" class="form-control" placeholder="Search applicants..." 
+                           value="{{ request.GET.search }}">
+                </div>
+                <div class="col-md-3">
+                    <select name="status" class="form-select">
+                        <option value="">All Statuses</option>
+                        <option value="pending" {% if request.GET.status == 'pending' %}selected{% endif %}>Pending</option>
+                        <option value="reviewed" {% if request.GET.status == 'reviewed' %}selected{% endif %}>Reviewed</option>
+                        <option value="shortlisted" {% if request.GET.status == 'shortlisted' %}selected{% endif %}>Shortlisted</option>
+                        <option value="interviewed" {% if request.GET.status == 'interviewed' %}selected{% endif %}>Interviewed</option>
+                        <option value="hired" {% if request.GET.status == 'hired' %}selected{% endif %}>Hired</option>
+                        <option value="rejected" {% if request.GET.status == 'rejected' %}selected{% endif %}>Rejected</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select name="sort" class="form-select">
+                        <option value="-applied_at" {% if request.GET.sort == '-applied_at' %}selected{% endif %}>Newest First</option>
+                        <option value="applied_at" {% if request.GET.sort == 'applied_at' %}selected{% endif %}>Oldest First</option>
+                        <option value="applicant__first_name" {% if request.GET.sort == 'applicant__first_name' %}selected{% endif %}>Name A-Z</option>
+                        <option value="-applicant__first_name" {% if request.GET.sort == '-applicant__first_name' %}selected{% endif %}>Name Z-A</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-outline-primary w-100">
+                        <i class="fas fa-search me-2"></i>Filter
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Bulk Actions -->
+    {% if applications %}
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="selectAll">
+                        <label class="form-check-label fw-semibold" for="selectAll">
+                            Select All
+                        </label>
+                    </div>
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-outline-success btn-sm" onclick="bulkAction('shortlist')" disabled id="bulkShortlistBtn">
+                            <i class="fas fa-star me-2"></i>Shortlist Selected
+                        </button>
+                        <button type="button" class="btn btn-outline-info btn-sm" onclick="bulkAction('interview')" disabled id="bulkInterviewBtn">
+                            <i class="fas fa-handshake me-2"></i>Schedule Interview
+                        </button>
+                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="bulkAction('reject')" disabled id="bulkRejectBtn">
+                            <i class="fas fa-times me-2"></i>Reject Selected
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+    
+    <!-- Applications List -->
+    {% if applications %}
+        <div class="row">
+            {% for application in applications %}
+                <div class="col-12 mb-4">
+                    <div class="card application-card">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col-md-1">
+                                    <div class="form-check">
+                                        <input class="form-check-input application-checkbox" type="checkbox" 
+                                               value="{{ application.id }}" id="app{{ application.id }}">
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-7">
+                                    <div class="d-flex align-items-start">
+                                        <div class="flex-grow-1">
+                                            <h5 class="fw-bold mb-2">
+                                                {{ application.applicant.first_name }} {{ application.applicant.last_name }}
+                                                {% if application.status == 'pending' %}
+                                                    <span class="badge bg-warning ms-2">New</span>
+                                                {% elif application.status == 'reviewed' %}
+                                                    <span class="badge bg-info ms-2">Reviewed</span>
+                                                {% elif application.status == 'shortlisted' %}
+                                                    <span class="badge bg-success ms-2">Shortlisted</span>
+                                                {% elif application.status == 'interviewed' %}
+                                                    <span class="badge bg-primary ms-2">Interviewed</span>
+                                                {% elif application.status == 'hired' %}
+                                                    <span class="badge bg-success ms-2">Hired</span>
+                                                {% elif application.status == 'rejected' %}
+                                                    <span class="badge bg-danger ms-2">Rejected</span>
+                                                {% endif %}
+                                            </h5>
+                                            
+                                            <div class="d-flex flex-wrap gap-3 text-muted mb-2">
+                                                <span><i class="fas fa-envelope me-1"></i>{{ application.applicant.email }}</span>
+                                                {% if application.applicant.phone %}
+                                                    <span><i class="fas fa-phone me-1"></i>{{ application.applicant.phone }}</span>
+                                                {% endif %}
+                                                <span><i class="fas fa-calendar me-1"></i>Applied {{ application.applied_at|timesince }} ago</span>
+                                                {% if application.expected_salary %}
+                                                    <span><i class="fas fa-dollar-sign me-1"></i>Expected: ${{ application.expected_salary|floatformat:0 }}</span>
+                                                {% endif %}
+                                                {% if application.available_from %}
+                                                    <span><i class="fas fa-clock me-1"></i>Available: {{ application.available_from|date:"M d, Y" }}</span>
+                                                {% endif %}
+                                            </div>
+                                            
+                                            {% if application.cover_letter %}
+                                                <p class="text-muted mb-2">
+                                                    <strong>Cover Letter:</strong> {{ application.cover_letter|truncatewords:20 }}
+                                                </p>
+                                            {% endif %}
+                                            
+                                            {% if application.applicant.jobseekerprofile.skills %}
+                                                <div class="mb-2">
+                                                    <strong class="text-muted">Skills:</strong>
+                                                    {% for skill in application.applicant.jobseekerprofile.skills|slice:":5" %}
+                                                        <span class="badge bg-light text-dark me-1">{{ skill }}</span>
+                                                    {% endfor %}
+                                                    {% if application.applicant.jobseekerprofile.skills|length > 5 %}
+                                                        <span class="text-muted">+{{ application.applicant.jobseekerprofile.skills|length|add:"-5" }} more</span>
+                                                    {% endif %}
+                                                </div>
+                                            {% endif %}
+                                            
+                                            {% if application.applicant.jobseekerprofile.experience_years %}
+                                                <div class="text-muted">
+                                                    <i class="fas fa-briefcase me-1"></i>
+                                                    {{ application.applicant.jobseekerprofile.experience_years }} years of experience
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-4">
+                                    <div class="text-md-end">
+                                        <div class="btn-group-vertical w-100 mb-3" role="group">
+                                            <button class="btn btn-outline-primary btn-sm mb-2" 
+                                                    onclick="viewApplication({{ application.id }})">
+                                                <i class="fas fa-eye me-2"></i>View Full Application
+                                            </button>
+                                            
+                                            {% if application.resume %}
+                                                <a href="{{ application.resume.url }}" target="_blank" 
+                                                   class="btn btn-outline-info btn-sm mb-2">
+                                                    <i class="fas fa-file-pdf me-2"></i>View Resume
+                                                </a>
+                                            {% endif %}
+                                            
+                                            <div class="btn-group w-100" role="group">
+                                                <button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" 
+                                                        data-bs-toggle="dropdown">
+                                                    <i class="fas fa-cog me-2"></i>Actions
+                                                </button>
+                                                <ul class="dropdown-menu">
+                                                    {% if application.status == 'pending' %}
+                                                        <li><a class="dropdown-item" href="#" onclick="updateStatus({{ application.id }}, 'reviewed')">
+                                                            <i class="fas fa-check me-2"></i>Mark as Reviewed
+                                                        </a></li>
+                                                    {% endif %}
+                                                    {% if application.status != 'shortlisted' %}
+                                                        <li><a class="dropdown-item" href="#" onclick="updateStatus({{ application.id }}, 'shortlisted')">
+                                                            <i class="fas fa-star me-2"></i>Shortlist
+                                                        </a></li>
+                                                    {% endif %}
+                                                    {% if application.status != 'interviewed' %}
+                                                        <li><a class="dropdown-item" href="#" onclick="scheduleInterview({{ application.id }})">
+                                                            <i class="fas fa-handshake me-2"></i>Schedule Interview
+                                                        </a></li>
+                                                    {% endif %}
+                                                    {% if application.status != 'hired' %}
+                                                        <li><a class="dropdown-item" href="#" onclick="updateStatus({{ application.id }}, 'hired')">
+                                                            <i class="fas fa-trophy me-2"></i>Mark as Hired
+                                                        </a></li>
+                                                    {% endif %}
+                                                    <li><hr class="dropdown-divider"></li>
+                                                    <li><a class="dropdown-item" href="#" onclick="sendMessage({{ application.id }})">
+                                                        <i class="fas fa-envelope me-2"></i>Send Message
+                                                    </a></li>
+                                                    <li><a class="dropdown-item text-danger" href="#" onclick="updateStatus({{ application.id }}, 'rejected')">
+                                                        <i class="fas fa-times me-2"></i>Reject
+                                                    </a></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Rating -->
+                                        <div class="text-center">
+                                            <small class="text-muted d-block mb-1">Rate Applicant</small>
+                                            <div class="rating" data-application-id="{{ application.id }}">
+                                                {% for i in "12345" %}
+                                                    <i class="fas fa-star star" data-rating="{{ i }}" 
+                                                       {% if application.rating >= i|add:0 %}style="color: #ffc107;"{% else %}style="color: #dee2e6;"{% endif %}></i>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Pagination -->
+        {% if is_paginated %}
+            <nav aria-label="Applications pagination">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}">
+                                <i class="fas fa-angle-double-left"></i>
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}">
+                                <i class="fas fa-angle-left"></i>
+                            </a>
+                        </li>
+                    {% endif %}
+                    
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ num }}</span>
+                            </li>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}">{{ num }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}">
+                                <i class="fas fa-angle-right"></i>
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.sort %}&sort={{ request.GET.sort }}{% endif %}">
+                                <i class="fas fa-angle-double-right"></i>
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        {% endif %}
+    {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-inbox fa-4x text-muted mb-3"></i>
+            <h4 class="text-muted">No applications yet</h4>
+            <p class="text-muted mb-4">This job hasn't received any applications yet. Share your job posting to attract more candidates!</p>
+            <div class="d-flex justify-content-center gap-2">
+                <button class="btn btn-primary" onclick="shareJob()">
+                    <i class="fas fa-share-alt me-2"></i>Share Job
+                </button>
+                <a href="{% url 'jobs:edit_job' job.id %}" class="btn btn-outline-primary">
+                    <i class="fas fa-edit me-2"></i>Edit Job
+                </a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Application Detail Modal -->
+<div class="modal fade" id="applicationModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Application Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="applicationModalBody">
+                <!-- Content loaded via AJAX -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.application-card {
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.application-card:hover {
+    border-color: #0d6efd;
+    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.15);
+    transform: translateY(-2px);
+}
+
+.badge {
+    font-size: 0.75rem;
+    padding: 0.375rem 0.75rem;
+}
+
+.btn-group-vertical .btn {
+    border-radius: 6px;
+    margin-bottom: 0.25rem;
+}
+
+.rating .star {
+    cursor: pointer;
+    font-size: 1.2rem;
+    margin: 0 2px;
+    transition: color 0.2s ease;
+}
+
+.rating .star:hover {
+    color: #ffc107 !important;
+}
+
+.form-control, .form-select {
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+.pagination .page-link {
+    border-radius: 8px;
+    margin: 0 2px;
+    border: 1px solid #dee2e6;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.dropdown-menu {
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.dropdown-item {
+    border-radius: 6px;
+    margin: 2px 4px;
+}
+
+.dropdown-item:hover {
+    background-color: #f8f9fa;
+}
+</style>
+
+<script>
+function viewApplication(applicationId) {
+    // Load application details in modal
+    fetch(`/jobs/application/${applicationId}/detail/`)
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById('applicationModalBody').innerHTML = html;
+            new bootstrap.Modal(document.getElementById('applicationModal')).show();
+        });
+}
+
+function updateStatus(applicationId, status) {
+    if (confirm(`Are you sure you want to update this application status to ${status}?`)) {
+        fetch(`/jobs/application/${applicationId}/update-status/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: JSON.stringify({status: status})
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error updating status');
+            }
+        });
+    }
+}
+
+function scheduleInterview(applicationId) {
+    // This would open an interview scheduling modal
+    alert('Interview scheduling feature would be implemented here');
+}
+
+function sendMessage(applicationId) {
+    // This would open a message composition modal
+    alert('Messaging feature would be implemented here');
+}
+
+function shareJob() {
+    const jobUrl = '{{ request.build_absolute_uri }}{% url "jobs:job_detail" job.id %}';
+    const jobTitle = '{{ job.title|escapejs }}';
+    
+    if (navigator.share) {
+        navigator.share({
+            title: jobTitle,
+            url: jobUrl
+        });
+    } else {
+        navigator.clipboard.writeText(jobUrl).then(function() {
+            alert('Job URL copied to clipboard!');
+        });
+    }
+}
+
+function bulkAction(action) {
+    const selectedApplications = Array.from(document.querySelectorAll('.application-checkbox:checked'))
+        .map(checkbox => checkbox.value);
+    
+    if (selectedApplications.length === 0) {
+        alert('Please select at least one application');
+        return;
+    }
+    
+    if (confirm(`Are you sure you want to ${action} ${selectedApplications.length} application(s)?`)) {
+        // Implementation would go here
+        alert(`Bulk ${action} feature would be implemented here`);
+    }
+}
+
+// Select all functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const selectAllCheckbox = document.getElementById('selectAll');
+    const applicationCheckboxes = document.querySelectorAll('.application-checkbox');
+    const bulkButtons = document.querySelectorAll('[id^="bulk"]');
+    
+    if (selectAllCheckbox) {
+        selectAllCheckbox.addEventListener('change', function() {
+            applicationCheckboxes.forEach(checkbox => {
+                checkbox.checked = this.checked;
+            });
+            updateBulkButtons();
+        });
+    }
+    
+    applicationCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateBulkButtons);
+    });
+    
+    function updateBulkButtons() {
+        const selectedCount = document.querySelectorAll('.application-checkbox:checked').length;
+        bulkButtons.forEach(button => {
+            button.disabled = selectedCount === 0;
+        });
+    }
+});
+
+// Rating functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const ratings = document.querySelectorAll('.rating');
+    
+    ratings.forEach(rating => {
+        const stars = rating.querySelectorAll('.star');
+        const applicationId = rating.dataset.applicationId;
+        
+        stars.forEach((star, index) => {
+            star.addEventListener('click', function() {
+                const ratingValue = index + 1;
+                
+                // Update visual rating
+                stars.forEach((s, i) => {
+                    if (i < ratingValue) {
+                        s.style.color = '#ffc107';
+                    } else {
+                        s.style.color = '#dee2e6';
+                    }
+                });
+                
+                // Save rating
+                fetch(`/jobs/application/${applicationId}/rate/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    },
+                    body: JSON.stringify({rating: ratingValue})
+                });
+            });
+        });
+    });
+});
+
+// Auto-submit form on filter change
+document.addEventListener('DOMContentLoaded', function() {
+    const statusSelect = document.querySelector('select[name="status"]');
+    const sortSelect = document.querySelector('select[name="sort"]');
+    
+    if (statusSelect) {
+        statusSelect.addEventListener('change', function() {
+            this.form.submit();
+        });
+    }
+    
+    if (sortSelect) {
+        sortSelect.addEventListener('change', function() {
+            this.form.submit();
+        });
+    }
+});
+</script>
+{% endblock %}
